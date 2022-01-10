@@ -55,14 +55,17 @@ extern "C" {
 /**
   * Electric_Tracker类结构体定义
 **/
+#pragma pack (2)
 typedef struct{
 	//配置(增加流梯度)
 	#define	De_Up_Rate		(Move_Rated_UpCurrentRate / 10)
 	bool		valid_up_rate;
+	bool		void1;
 	int32_t	up_rate;
 	//配置(减流梯度)
 	#define	De_Down_Rate	(Move_Rated_DownCurrentRate / 10)
 	bool		valid_down_rate;
+	bool		void2;
 	int32_t	down_rate;
 	//计算过程数据
 	int32_t	course_mut;	//计算过程中的电流(小电流积分)(放大为CONTROL_FREQ_HZ倍)
@@ -70,6 +73,7 @@ typedef struct{
 	//输出跟踪量
 	int32_t	go_current;	//立即电流
 }Current_Tracker_Typedef;
+#pragma pack ()
 extern Current_Tracker_Typedef	current_tck;
 
 void Current_Tracker_Set_UpRate(int32_t value);		//电流跟踪器设置增流变化率
