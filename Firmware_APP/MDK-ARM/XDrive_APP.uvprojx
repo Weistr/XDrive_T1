@@ -136,8 +136,8 @@
             <Capability>1</Capability>
             <DriverSelection>4101</DriverSelection>
           </Flash1>
-          <bUseTDR>1</bUseTDR>
-          <Flash2>BIN\UL2CM3.DLL</Flash2>
+          <bUseTDR>0</bUseTDR>
+          <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
           <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\Base_Drivers;..\Base_Math;..\Config;..\Control;..\Data_Link;..\Debug;..\Kernel;..\Demo</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\Base_Drivers;..\Base_Math;..\Config;..\Control;..\Data_Link;..\Debug;..\Kernel;..\Demo;..\FreeModbus\modbus\ascii;..\FreeModbus\modbus\include;..\FreeModbus\modbus\rtu;..\FreeModbus\port</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -697,6 +697,61 @@
               <FileName>loop_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Kernel\loop_it.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>FreeModbus/modbus/functions</GroupName>
+          <Files>
+            <File>
+              <FileName>mbfunccoils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FreeModbus\modbus\functions\mbfunccoils.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfuncdisc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FreeModbus\modbus\functions\mbfuncdisc.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfuncholding.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FreeModbus\modbus\functions\mbfuncholding.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfuncinput.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FreeModbus\modbus\functions\mbfuncinput.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbfuncother.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FreeModbus\modbus\functions\mbfuncother.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbutils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FreeModbus\modbus\functions\mbutils.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>FreeModbus/port</GroupName>
+          <Files>
+            <File>
+              <FileName>user_mb_app.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FreeModbus\port\user_mb_app.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>FreeModbus/modbus/rtu</GroupName>
+          <Files>
+            <File>
+              <FileName>mbcrc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FreeModbus\modbus\rtu\mbcrc.c</FilePath>
             </File>
           </Files>
         </Group>
