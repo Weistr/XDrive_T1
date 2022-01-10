@@ -62,14 +62,19 @@ extern "C" {
 /**
   * Modbus接口结构体
 **/
+
+#pragma pack(2)
 typedef struct{
 	//配置(ID)
 	#define		De_Modbus_ID	1			//默认
 	bool			valid_modbus_id;			//Modbus_ID配置有效
+	bool			void1;
 	//配置
 	uint16_t	id_run;					//ID
 	uint16_t	id_order;				//Modbus_ID(存储数据,下次一定)
 }Signal_Modbus_Typedef;
+#pragma pack()
+
 extern Signal_Modbus_Typedef signal_modbus;
 
 void Signal_Modbus_Set_ID(uint16_t value);				//设置Modbus接口ID

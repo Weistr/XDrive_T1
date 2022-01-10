@@ -53,11 +53,33 @@
 //Control
 #include "Control_Config.h"
 
+//modbus CRC
+#include "mbcrc.h"
+#include "port.h"
+#include "mb.h"
+#include "mbproto.h"
+#include "mbfunc.h"
+
 /****************************************** Modbus接口 ******************************************/
 /****************************************** Modbus接口 ******************************************/
 /****************************************** Modbus接口 ******************************************/
 //Signal_Modbus接口
 Signal_Modbus_Typedef signal_modbus;
+
+//Modbus Function
+static xMBFunctionHandler xFuncHandlers[MB_FUNC_HANDLERS_MAX] = {
+    // {MB_FUNC_OTHER_REPORT_SLAVEID, eMBFuncReportSlaveID},
+    // {MB_FUNC_READ_INPUT_REGISTER, eMBFuncReadInputRegister},
+    {MB_FUNC_READ_HOLDING_REGISTER, eMBFuncReadHoldingRegister},
+    {MB_FUNC_WRITE_MULTIPLE_REGISTERS, eMBFuncWriteMultipleHoldingRegister},
+    {MB_FUNC_WRITE_REGISTER, eMBFuncWriteHoldingRegister},
+    // {MB_FUNC_READWRITE_MULTIPLE_REGISTERS, eMBFuncReadWriteMultipleHoldingRegister},
+    // {MB_FUNC_READ_COILS, eMBFuncReadCoils},
+    // {MB_FUNC_WRITE_SINGLE_COIL, eMBFuncWriteCoil},
+    // {MB_FUNC_WRITE_MULTIPLE_COILS, eMBFuncWriteMultipleCoils},
+    // {MB_FUNC_READ_DISCRETE_INPUTS, eMBFuncReadDiscreteInputs},
+	{0,NULL},
+};
 
 /**
 	* @brief  Modbus接口从机配置
@@ -100,6 +122,7 @@ void Signal_Modbus_Set_Default(void)
 	Signal_Modbus_Set_ID(	De_Modbus_ID);			//设置Modbus接口ID
 }
 
+void RS485_Reback(char* buff_rx, uint16_t len_rx);
 /**
   * @brief  Modbus接口初始化
   * @param  NULL
@@ -112,6 +135,59 @@ void Signal_Modbus_Init(void)
 	
 	//加载配置
 	signal_modbus.id_run = signal_modbus.id_order;
+	
+	//启动RS485
+	Uart_Mixed_Init(&muart1, RS485_Reback, NULL);
+}
+
+/**
+  * @brief  RS485 数据处理回调
+  * @param  NULL
+  * @retval NULL
+**/
+void RS485_Reback(char* buff_rx, uint16_t len_rx)
+{
+	// 报文解析
+	if(signal_modbus.id_run == buff_rx[0] )
+	{
+		eMBException eException;
+		UCHAR *cMBFrame = (UCHAR *)(buff_rx + 1);
+		USHORT usLength = len_rx - 3;
+		// 校验报文
+		if( ( len_rx >= 4 )
+        && ( usMBCRC16((UCHAR *)buff_rx, len_rx ) == 0 ) )
+    {
+			// 选择函数
+			for(int i = 0; i < MB_FUNC_HANDLERS_MAX; i++ )
+			{
+				if( xFuncHandlers[i].ucFunctionCode == 0 )
+				{
+					eException = MB_EX_ILLEGAL_FUNCTION;
+					break;
+				}
+				else if( xFuncHandlers[i].ucFunctionCode == buff_rx[1] )
+				{
+					eException = xFuncHandlers[i].pxHandler( cMBFrame, &usLength );
+					break;
+				}
+			}
+    }
+    else
+    {
+			eException = MB_EX_MEMORY_PARITY_ERROR;
+    }
+		// 返回信息
+		if(eException != MB_EX_NONE)
+		{
+			cMBFrame[0] = ( UCHAR )( buff_rx[1] | MB_FUNC_ERROR );
+			cMBFrame[1] = eException;
+			usLength = 2;
+		}
+		USHORT usCRC16 = usMBCRC16( ( UCHAR * ) buff_rx, usLength+1 );
+		cMBFrame[usLength] = ( UCHAR )( usCRC16 & 0xFF );
+		cMBFrame[usLength+1] = ( UCHAR )( usCRC16 >> 8 );
+		UART_Mixed_TxTrigger(&muart1, buff_rx, usLength+3);
+	}
 }
 
 /**
@@ -119,22 +195,22 @@ void Signal_Modbus_Init(void)
   * @param  NULL
   * @retval NULL
 **/
-void Signal_Modbus_Low_Priority_Callback(void)
-{
-	//Modbus接口配置
-	if(signal_modbus.id_order != signal_modbus.id_run)
-	{
-		//加载配置
-		signal_modbus.id_run = signal_modbus.id_order;
-		
-#if   (Demo4_Dir == Modbus_Dir_Master)
+//void Signal_Modbus_Low_Priority_Callback(void)
+//{
+//	//Modbus接口配置
+//	if(signal_modbus.id_order != signal_modbus.id_run)
+//	{
+//		//加载配置
+//		signal_modbus.id_run = signal_modbus.id_order;
+//		
+//#if   (Demo4_Dir == Modbus_Dir_Master)
 
-#elif (Demo4_Dir == Modbus_Dir_Slaves)
-		//从机配置更新
-		Signal_Modbus_Slave_Config();
-#endif
-	}
-}
+//#elif (Demo4_Dir == Modbus_Dir_Slaves)
+//		//从机配置更新
+//		Signal_Modbus_Slave_Config();
+//#endif
+//	}
+//}
 
 /****************************************** Signal_Count接口 ******************************************/
 /****************************************** Signal_Count接口 ******************************************/
