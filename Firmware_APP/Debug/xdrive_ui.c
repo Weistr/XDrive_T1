@@ -56,6 +56,11 @@
 #include "ssd1306.h"
 #include "ui_picture.h"
 
+// Modbus
+#include "usart.h"
+
+
+
 /******************** 通用数据 ********************/
 /******************** 通用数据 ********************/
 /******************** 通用数据 ********************/
@@ -91,6 +96,7 @@ REINui_Widget_Typedef			ui_signal_count;		//Signal_Count接口参数
 REINui_Widget_Typedef			ui_signal_pwm;			//Signal_PWM接口参数
 REINui_Widget_Typedef			ui_calibration;			//校准
 REINui_Widget_Typedef			ui_information;			//信息显示
+REINui_Widget_Typedef			ui_modbusrtu;				//modbusrtu信息显示
 //拓扑指针
 REINui_Widget_Typedef			*ui_activated = NULL;	//激活的控件指针
 REINui_Widget_Typedef			*ui_pitch = NULL;			//选中的控件指针
@@ -893,6 +899,70 @@ void REINui_Information_drawing_function(void* _widget)
 	}
 }
 
+void REINui_ModbusRtu_drawing_function(void *_widget)
+{
+	char buff[13];
+	REINui_Widget_Typedef *widget = (REINui_Widget_Typedef *)_widget; //主控件
+
+	//绘制开始
+	GRAM_Clear(ssd1306_gram);
+
+	//绘制串口波特率
+	GRAM_ShowString(ssd1306_gram, 0, 0, (uint8_t *)"BaudRate:", CharFont_0806, true);
+	sprintf(buff, "%d", Modbus_UART_Get_HUART.Init.BaudRate);
+	GRAM_ShowString(ssd1306_gram, 54, 0, (uint8_t *)buff, CharFont_0806, true);
+	//绘制终止位
+	GRAM_ShowString(ssd1306_gram, 0, 8, (uint8_t *)"StopBit :", CharFont_0806, true);
+	if(Modbus_UART_Get_HUART.Init.StopBits == UART_STOPBITS_1)
+	{
+		GRAM_ShowString(ssd1306_gram, 54, 8, (uint8_t *)"1", CharFont_0806, true);
+	}
+	else if(Modbus_UART_Get_HUART.Init.StopBits == UART_STOPBITS_2)
+	{
+		GRAM_ShowString(ssd1306_gram, 54, 8, (uint8_t *)"2", CharFont_0806, true);
+	}
+	else
+	{
+		GRAM_ShowString(ssd1306_gram, 54, 8, (uint8_t *)"Invalid", CharFont_0806, true);
+	}
+	
+	//绘制奇偶校验
+	GRAM_ShowString(ssd1306_gram, 0, 16, (uint8_t *)"Parity  :", CharFont_0806, true);
+	if(Modbus_UART_Get_HUART.Init.Parity == UART_PARITY_NONE)
+	{
+		GRAM_ShowString(ssd1306_gram, 54, 16, (uint8_t *)"NONE", CharFont_0806, true);
+	}
+	else if(Modbus_UART_Get_HUART.Init.Parity == UART_PARITY_EVEN)
+	{
+		GRAM_ShowString(ssd1306_gram, 54, 16, (uint8_t *)"EVEN", CharFont_0806, true);
+	}
+	else if(Modbus_UART_Get_HUART.Init.Parity == UART_PARITY_ODD)
+	{
+		GRAM_ShowString(ssd1306_gram, 54, 16, (uint8_t *)"ODD", CharFont_0806, true);
+	}
+	else
+	{
+		GRAM_ShowString(ssd1306_gram, 54, 16, (uint8_t *)"Invalid", CharFont_0806, true);
+	}
+	//绘制站台号 和 协议
+	GRAM_ShowString(ssd1306_gram, 0, 24, (uint8_t *)"Slave   :", CharFont_0806, true);
+	sprintf(buff, "%d", signal_modbus.id_run);
+	GRAM_ShowString(ssd1306_gram, 54, 24, (uint8_t *)buff, CharFont_0806, true);
+
+	//刷新SSD1306
+	SSD1306_Refresh(ssd1306_gram);
+
+	//用户输入响应
+	if (Button_Inquice_State(Button_DOWN) == Button_Bit_LongDrop)
+	{
+		if (widget->source_widget != NULL)
+		{
+			ui_pitch = widget->source_widget; //退回上一个项目
+			ui_pitch->update_drawing = true;
+		}
+	}
+}
+
 /*********************************************************************************************/
 /*********************************************************************************************/
 /*********************************************************************************************/
@@ -928,6 +998,7 @@ void XDrive_REINui_Init(void)
 	REINui_Widget_Init(&ui_signal_count,	(uint8_t*)"Signal Count   ",	(uint8_t*)NULL,										REINui_SignalCount_drawing_function	, NULL								);
 	REINui_Widget_Init(&ui_signal_pwm,		(uint8_t*)"Signal PWM     ",	(uint8_t*)NULL,										REINui_SignalPWM_drawing_function		, NULL								);
 	REINui_Widget_Init(&ui_calibration,		(uint8_t*)"Calibration    ",	(uint8_t*)Calibration_ICON_3232,	REINui_Calibration_drawing_function	, NULL								);
+	REINui_Widget_Init(&ui_modbusrtu,			(uint8_t*)"ModbusRtu      ",	(uint8_t*)NULL,										REINui_ModbusRtu_drawing_function 	,	NULL								);
 	REINui_Widget_Init(&ui_information,		(uint8_t*)"Information    ",	(uint8_t*)Information_ICON_3232,	REINui_Information_drawing_function ,	NULL								);
 
 	//添加界面拓扑关系
@@ -948,6 +1019,7 @@ void XDrive_REINui_Init(void)
 	//||                   |                                         ||                   |                                         ||
 	//||                   |------------------------ Calibration     ||                   |------------------------ 校准            ||
 	//||                   |                                         ||                   |                                         ||
+	//||                   |------------------------ ModbusRtu	     ||                   |------------------------ ModbusRtu       ||
 	//||                   |------------------------ Information     ||                   |------------------------ 信息            ||
 	//--------------------------------------------------------------------------------------------------------------------------------
 	
@@ -970,6 +1042,7 @@ void XDrive_REINui_Init(void)
 	
 	REINui_Directory_Append_Widget(&ui_main_catalog,	&ui_calibration);
 	
+	REINui_Directory_Append_Widget(&ui_main_catalog,	&ui_modbusrtu);
 	REINui_Directory_Append_Widget(&ui_main_catalog,	&ui_information);
 
 	//(默认选择"桌面")
