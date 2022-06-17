@@ -61,7 +61,7 @@ typedef struct{
 	#define De_PID_KP	5		//默认KP
 	#define De_PID_KI	30	//默认KI
 	#define De_PID_KD	0		//默认KD
-	bool		valid_kp,void1, valid_ki,void2, valid_kd,void3;	//参数有效标志
+	uint16_t		valid_kp, valid_ki, valid_kd;	//参数有效标志
 	int32_t	kp, ki, kd;		//参数
 	//控制参数
 	int32_t		v_error, v_error_last;	//误差记录
@@ -90,7 +90,7 @@ typedef struct{
 	#define De_DCE_KI	80		//默认KI
 	#define De_DCE_KV	300		//默认KIV
 	#define De_DCE_KD	250		//默认KD
-	bool		valid_kp, void1, valid_ki, void2, valid_kv, void3, valid_kd, void4;	//参数有效标志
+	uint16_t		valid_kp,  valid_ki,  valid_kv, valid_kd;	//参数有效标志
 	int32_t	kp, ki, kv, kd;		//参数
 	//控制参数(基本部分)
 	int32_t		p_error, v_error;		//误差记录
@@ -174,19 +174,14 @@ typedef enum{
 typedef struct{
 	//配置(模式)
 	#define			De_Motor_Mode		Motor_Mode_PULSE_Location	//默认配置
-	bool				valid_mode;		//有效标志
-	bool				void1;
+	uint16_t				valid_mode;		//有效标志
 	Motor_Mode	mode_order;		//电机模式_新指令的
-	bool				void2;
 	//配置(堵转)
 	#define			De_Motor_Stall	true		//默认堵转保护开关
-	bool				valid_stall_switch;			//堵转保护开关有效标志
-	bool				void3;
-	bool				stall_switch;						//堵转保护开关
-	bool				void4;
+	uint16_t				valid_stall_switch;			//堵转保护开关有效标志
+	uint16_t				stall_switch;						//堵转保护开关
 	//模式
 	Motor_Mode	mode_run;			//电机模式_运行中的
-	bool				void5;
 	//读取
 	int32_t		real_lap_location;				//读取单圈位置
 	int32_t		real_lap_location_last;		//读取单圈位置
@@ -203,34 +198,26 @@ typedef struct{
 	int32_t		goal_location;	//目标位置(由信号输入)
 	int32_t		goal_speed;			//目标速度(由信号输入)
 	int16_t		goal_current;		//目标电流(由信号输入)
-	bool			goal_disable;		//目标失能(由信号输入)
-	bool			void6;
-	bool			goal_brake;			//目标刹车(由信号输入)
-	bool			void7;
+	uint16_t			goal_disable;		//目标失能(由信号输入)
+	uint16_t			goal_brake;			//目标刹车(由信号输入)
 	//软目标
 	int32_t		soft_location;	//软位置(由 跟踪器/重构器/插补器/硬运算 得到)
 	int32_t		soft_speed;			//软速度(由 跟踪器/重构器/插补器/硬运算 得到)
 	int16_t		soft_current;		//软电流(由 跟踪器/重构器/插补器/硬运算 得到)
-	bool			soft_disable;		//软失能
-	bool			void8;
-	bool			soft_brake;			//软刹车
-	bool			void9;
-	bool			soft_new_curve;	//新软目标曲线
-	bool			void10;
+	uint16_t			soft_disable;		//软失能
+	uint16_t			soft_brake;			//软刹车
+	uint16_t			soft_new_curve;	//新软目标曲线
 	//输出
 	int32_t		foc_location;		//FOC矢量位置
 	int32_t		foc_current;		//FOC矢量大小
 	//堵转识别
 	uint32_t	stall_time_us;	//堵转计时器
-	bool			stall_flag;			//堵转标志
-	bool			void11;
+	uint16_t			stall_flag;			//堵转
 	//过载识别
 	uint32_t	overload_time_us;	//过载计时器
-	bool			overload_flag;		//过载标志
-	bool			void12;
+	uint16_t			overload_flag;		//过载标志
 	//状态
 	Motor_State		state;			//统一的电机状态
-	bool			void13;
 }Motor_Control_Typedef;
 #pragma pack ()
 extern Motor_Control_Typedef motor_control;

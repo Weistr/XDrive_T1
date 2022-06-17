@@ -79,51 +79,51 @@ static uint32_t time_second_100ms = 0;
 
 uint16_t reboot;
 uint16_t save;
+uint32_t version = 0x01010602;
 
 void load_info(void)
 {
-	if(*((uint16_t *)0x0801FC00) == 0x1234)
+	if(*((uint32_t *)stockpile_data.begin_add) == version)
 	{
 		// pid
 		pid.valid_kp = true;
-		pid.kp = *((int32_t *)(0x0801FC00+2));
+		pid.kp = *((int32_t *)(stockpile_data.begin_add+4));
 		pid.valid_ki = true;
-		pid.ki = *((int32_t *)(0x0801FC00+6));
+		pid.ki = *((int32_t *)(stockpile_data.begin_add+8));
 		pid.valid_kd = true;
-		pid.kd = *((int32_t *)(0x0801FC00+10));
+		pid.kd = *((int32_t *)(stockpile_data.begin_add+12));
 		
 		// dce
 		dce.valid_kp = true;
-		dce.kp = *((int32_t *)(0x0801FC00+14));
+		dce.kp = *((int32_t *)(stockpile_data.begin_add+16));
 		dce.valid_ki = true;
-		dce.ki = *((int32_t *)(0x0801FC00+18));
+		dce.ki = *((int32_t *)(stockpile_data.begin_add+20));
 		dce.valid_kv = true;
-		dce.kv = *((int32_t *)(0x0801FC00+22));
+		dce.kv = *((int32_t *)(stockpile_data.begin_add+24));
 		dce.valid_kd = true;
-		dce.kd = *((int32_t *)(0x0801FC00+26));
+		dce.kd = *((int32_t *)(stockpile_data.begin_add+28));
 		
 		// Uart
 		dyn_uart1.valid_uart_baudrate = true;
-		dyn_uart1.baud_rate_order = *((int32_t *)(0x0801FC00+30));
+		dyn_uart1.baud_rate_order = *((int32_t *)(stockpile_data.begin_add+32));
 		dyn_uart1.valid_uart_mode = true;
-		dyn_uart1.uart_order = (Uart_Mode)(*((int16_t *)(0x0801FC00+34)));
+		dyn_uart1.uart_order = (Uart_Mode)(*((int16_t *)(stockpile_data.begin_add+36)));
 		
 		// Modbus
 		signal_modbus.valid_modbus_id = true;
-		signal_modbus.id_order = *((int16_t *)(0x0801FC00+36));
+		signal_modbus.id_order = *((int16_t *)(stockpile_data.begin_add+38));
 	}
 }
 
 void save_info(void)
 {
-	uint16_t head = 0x1234;
 	Stockpile_Flash_Data_Empty(&stockpile_data);
 	Stockpile_Flash_Data_Begin(&stockpile_data);
 	
 	Stockpile_Flash_Data_Set_Write_Add(&stockpile_data, stockpile_data.begin_add);
 	
 	// head
-	Stockpile_Flash_Data_Write_Data16(&stockpile_data, (uint16_t *)&head, 1);
+	Stockpile_Flash_Data_Write_Data32(&stockpile_data, (uint32_t *)&version, 1);
 	
 	// PID
 	Stockpile_Flash_Data_Write_Data32(&stockpile_data, (uint32_t *)&pid.kp, 1);

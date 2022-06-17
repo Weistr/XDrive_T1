@@ -59,18 +59,15 @@ extern "C" {
 typedef struct{
 	//配置(速度)
 	#define	DE_MAX_SPEED	(Move_Rated_Speed)
-	bool		valid_max_speed;
-	bool		void1;
+	uint16_t		valid_max_speed;
 	int32_t	max_speed;
 	//配置(加速加速度)
 	#define	DE_UP_ACC			(Move_Rated_UpAcc / 10)
-	bool		valid_up_acc;
-	bool		void2;
+	uint16_t		valid_up_acc;
 	int32_t	up_acc;
 	//配置(减速加速度)
 	#define	DE_Down_ACC		(Move_Rated_DownAcc / 10)
-	bool		valid_down_acc;
-	bool		void3;
+	uint16_t		valid_down_acc;
 	int32_t	down_acc;
 	float		down_acc_quick;	//快速运算数		1.0f / (2.0f * down_acc)
 	//静态配置的跟踪参数

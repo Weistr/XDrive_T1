@@ -67,8 +67,7 @@ extern "C" {
 typedef struct{
 	//配置(ID)
 	#define		De_Modbus_ID	1			//默认
-	bool			valid_modbus_id;			//Modbus_ID配置有效
-	bool			void1;
+	uint16_t			valid_modbus_id;			//Modbus_ID配置有效
 	//配置
 	uint16_t	id_run;					//ID
 	uint16_t	id_order;				//Modbus_ID(存储数据,下次一定)

@@ -50,6 +50,8 @@ extern "C" {
 
 extern uint16_t reboot;
 extern uint16_t save;
+extern uint32_t version;
+
 
 //loop.c
 void loop_second_base_1ms(void);	//副时钟1ms时钟

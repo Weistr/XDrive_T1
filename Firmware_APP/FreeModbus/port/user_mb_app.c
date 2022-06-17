@@ -106,6 +106,9 @@ typedef struct
 
 MemoryLine line[] = 
 {
+	{(USHORT *)&version,sizeof(ULONG)/sizeof(USHORT)},
+	{(USHORT *)&reboot,sizeof(uint16_t)/sizeof(USHORT)},
+	{(USHORT *)&save,sizeof(uint16_t)/sizeof(USHORT)},
 	{(USHORT *)&pid,sizeof(Control_PID_Typedef)/sizeof(USHORT)},
 	{(USHORT *)&dce,sizeof(Control_DCE_Typedef)/sizeof(USHORT)},
 	{(USHORT *)&motor_control,sizeof(Motor_Control_Typedef)/sizeof(USHORT)},
@@ -114,8 +117,6 @@ MemoryLine line[] =
 	{(USHORT *)&current_tck,sizeof(Current_Tracker_Typedef)/sizeof(USHORT)},
 	{(USHORT *)&dyn_uart1,sizeof(Dynamic_Uart_Typedef)/sizeof(USHORT)},
 	{(USHORT *)&signal_modbus,sizeof(Signal_Modbus_Typedef)/sizeof(USHORT)},
-	{(USHORT *)&reboot,sizeof(uint16_t)/sizeof(USHORT)},
-	{(USHORT *)&save,sizeof(uint16_t)/sizeof(USHORT)},
 	{NULL,NULL}			// Don't delete the end flag
 };
 

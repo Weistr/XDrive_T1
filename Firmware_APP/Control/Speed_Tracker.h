@@ -59,13 +59,11 @@ extern "C" {
 typedef struct{
 	//配置(加速加速度)
 	#define	DE_UP_ACC			(Move_Rated_UpAcc / 10)
-	bool		valid_up_acc;
-	bool		void1;
+	uint16_t		valid_up_acc;
 	int32_t	up_acc;
 	//配置(减速加速度)
 	#define	DE_DOWN_ACC		(Move_Rated_DownAcc / 10)
-	bool		valid_down_acc;
-	bool		void2;
+	uint16_t		valid_down_acc;
 	int32_t	down_acc;
 	//计算过程数据
 	int32_t		course_mut;	//过程加速度积分(放大CONTROL_FREQ_HZ倍)

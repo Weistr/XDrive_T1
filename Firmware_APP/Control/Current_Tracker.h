@@ -59,13 +59,11 @@ extern "C" {
 typedef struct{
 	//配置(增加流梯度)
 	#define	De_Up_Rate		(Move_Rated_UpCurrentRate / 10)
-	bool		valid_up_rate;
-	bool		void1;
+	uint16_t		valid_up_rate;
 	int32_t	up_rate;
 	//配置(减流梯度)
 	#define	De_Down_Rate	(Move_Rated_DownCurrentRate / 10)
-	bool		valid_down_rate;
-	bool		void2;
+	uint16_t		valid_down_rate;
 	int32_t	down_rate;
 	//计算过程数据
 	int32_t	course_mut;	//计算过程中的电流(小电流积分)(放大为CONTROL_FREQ_HZ倍)
