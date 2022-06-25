@@ -50,7 +50,6 @@ extern "C" {
 
 extern uint16_t reboot;
 extern uint16_t save;
-extern uint32_t version;
 
 
 //loop.c

@@ -866,6 +866,7 @@ void REINui_Calibration_drawing_function(void* _widget)
 **/
 void REINui_Information_drawing_function(void* _widget)
 {
+	char sver[10];
 	REINui_Widget_Typedef		*widget = (REINui_Widget_Typedef*)_widget;		//主控件
 
 	//绘制开始
@@ -881,7 +882,9 @@ void REINui_Information_drawing_function(void* _widget)
 #endif
 	//绘制软件版本
 	GRAM_ShowString(ssd1306_gram,  0,  8, (uint8_t*)"Software:",     CharFont_0806, true);
-	GRAM_ShowString(ssd1306_gram, 54,  8, (uint8_t*)XDrive_Firmware, CharFont_0806, true);
+	sprintf(sver,"F%X",version);
+	GRAM_ShowString(ssd1306_gram, 54,  8, (uint8_t*)sver, CharFont_0806, true);
+//	GRAM_ShowString(ssd1306_gram, 54,  8, (uint8_t*)XDrive_Firmware, CharFont_0806, true);
 	//绘制GitHub链接
 	GRAM_ShowString(ssd1306_gram,  0, 16, (uint8_t*)"https://github.com   ", CharFont_0806, true);
 	GRAM_ShowString(ssd1306_gram,  0, 24, (uint8_t*)"/unlir/XDrive        ", CharFont_0806, true);
