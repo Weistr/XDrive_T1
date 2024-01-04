@@ -230,31 +230,31 @@ void REIN_UART_Modbus_Init(void)
   * @param  NULL
   * @retval NULL
 **/
-//void REIN_UART_Modbus_Low_Priority_Callback(void)
-//{
-//	//Modbus串口配置
-//	if( (dyn_uart1.baud_rate_order != dyn_uart1.baud_rate_run)
-//	 || (dyn_uart1.uart_order      != dyn_uart1.uart_run))
-//	{
-//		//加载配置
-//		dyn_uart1.baud_rate_run	= dyn_uart1.baud_rate_order;
-//		dyn_uart1.uart_run			= dyn_uart1.uart_order;
-//		
-//		//重新根据配置初始化部分串口配置
-//		HAL_UART_StateTypeDef		uart_state;
-//		uint32_t begin_time = HAL_GetTick();
-//		//等待串口发送就绪(100ms超时设置)
-//		while((HAL_GetTick() - begin_time) < 100)
-//		{
-//			uart_state = HAL_UART_GetState(&Modbus_UART_Get_HUART);
-//			if((uart_state & HAL_UART_STATE_BUSY_TX) != HAL_UART_STATE_BUSY_TX)	break;	//TX非忙碌则退出
-//		}
-//		//失能初始化
-//		HAL_UART_DeInit(&Modbus_UART_Get_HUART);	//失能HAL串口
-//		
-//		//Modbus串口配置
-//		REIN_UART_Modbus_Config();
-//	}
-//}
+void REIN_UART_Modbus_Low_Priority_Callback(void)
+{
+	//Modbus串口配置
+	if( (dyn_uart1.baud_rate_order != dyn_uart1.baud_rate_run)
+	 || (dyn_uart1.uart_order      != dyn_uart1.uart_run))
+	{
+		//加载配置
+		dyn_uart1.baud_rate_run	= dyn_uart1.baud_rate_order;
+		dyn_uart1.uart_run			= dyn_uart1.uart_order;
+		
+		//重新根据配置初始化部分串口配置
+		HAL_UART_StateTypeDef		uart_state;
+		uint32_t begin_time = HAL_GetTick();
+		//等待串口发送就绪(100ms超时设置)
+		while((HAL_GetTick() - begin_time) < 100)
+		{
+			uart_state = HAL_UART_GetState(&Modbus_UART_Get_HUART);
+			if((uart_state & HAL_UART_STATE_BUSY_TX) != HAL_UART_STATE_BUSY_TX)	break;	//TX非忙碌则退出
+		}
+		//失能初始化
+		HAL_UART_DeInit(&Modbus_UART_Get_HUART);	//失能HAL串口
+		
+		//Modbus串口配置
+		REIN_UART_Modbus_Config();
+	}
+}
 
 

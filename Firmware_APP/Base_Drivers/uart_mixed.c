@@ -99,7 +99,7 @@
   * @param  xetc:  发送完成回调函数
   * @retval NULL 
 **/
-void Uart_Mixed_Init(UartMixed_TypeDef *muart, void(*xerc)(char*, uint16_t), void(*xetc)(void))
+void Uart_Mixed_Init(UartMixed_TypeDef *muart, void(*xerc)(uint8_t*, uint16_t), void(*xetc)(void))
 {
 	//实例
 #ifdef Enabled_MUart1

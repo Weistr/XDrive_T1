@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "opicomm.h": "c",
+        "uart_mixed.h": "c",
+        "kernel_port.h": "c",
+        "rein_math.h": "c",
+        "motor_control.h": "c",
+        "crc16modbus.h": "c",
+        "xdcom.h": "c",
+        "bsp_delay.h": "c",
+        "control_config.h": "c"
+    }
+}

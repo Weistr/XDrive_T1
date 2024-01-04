@@ -48,20 +48,56 @@ extern "C" {
 
 //引用端口定义
 #include "kernel_port.h"
+/**user*/
+/*******************************/
+#define motorId 3
 
+#if (motorId == 0 || motorId == 4)
+#define posMax 200000
+#define posMin -200000
+#define speedMax 10000
+#define speedMin -10000
+#define accMax 800
+#endif
+#if motorId == 1
+#define posMax 200000
+#define posMin -200000
+#define speedMax 10000
+#define speedMin -10000
+#define accMax 800
+#endif
+#if motorId == 2
+#define posMax 200000
+#define posMin -200000
+#define speedMax 10000
+#define speedMin -10000
+#define accMax 800
+#endif
+#if motorId == 3
+#define posMax 200000
+#define posMin -200000
+#define speedMax 10000
+#define speedMin -10000
+#define accMax 800
+#else
+#define posMax 200000
+#define posMin -200000
+#define speedMax 10000
+#define speedMin -10000
+#define accMax 800
+#endif
 /****************************************  直接控制(电流控制)  ****************************************/
 /****************************************  直接控制(电流控制)  ****************************************/
 void Control_Cur_To_Electric(int16_t current);		//电流输出
 
 /****************************************  PID控制(速度控制)  ****************************************/
 /****************************************  PID控制(速度控制)  ****************************************/
-#pragma pack (2)
 typedef struct{
 	//配置
 	#define De_PID_KP	5		//默认KP
 	#define De_PID_KI	30	//默认KI
 	#define De_PID_KD	0		//默认KD
-	uint16_t		valid_kp, valid_ki, valid_kd;	//参数有效标志
+	bool		valid_kp, valid_ki, valid_kd;	//参数有效标志
 	int32_t	kp, ki, kd;		//参数
 	//控制参数
 	int32_t		v_error, v_error_last;	//误差记录
@@ -69,7 +105,6 @@ typedef struct{
 	int32_t		i_mut, i_dec;						//小积分处理
 	int32_t		out;										//输出
 }Control_PID_Typedef;
-#pragma pack ()
 extern Control_PID_Typedef pid;
 
 //参数配置
@@ -83,14 +118,27 @@ void Control_PID_To_Electric(int32_t _speed);
 
 /****************************************  DCE控制(位置控制)  ****************************************/
 /****************************************  DCE控制(位置控制)  ****************************************/
-#pragma pack (2)
 typedef struct{
 	//配置
-	#define De_DCE_KP	200		//默认KP
-	#define De_DCE_KI	80		//默认KI
-	#define De_DCE_KV	300		//默认KIV
-	#define De_DCE_KD	250		//默认KD
-	uint16_t		valid_kp,  valid_ki,  valid_kv, valid_kd;	//参数有效标志
+	#if((motorId == 3)||(motorId==2))
+	#define De_DCE_KP	400//200		//默认KP
+	#define De_DCE_KI	30//80		//默认KI
+	#define De_DCE_KV	300//300		//默认KIV
+	#define De_DCE_KD	250//250		//默认KD
+	
+	#else
+	#define De_DCE_KP	400//200		//默认KP
+	#define De_DCE_KI	30//80		//默认KI
+	#define De_DCE_KV	300//300		//默认KIV
+	#define De_DCE_KD	250//250		//默认KD
+	/*
+	#define De_DCE_KP	1000//200		//默认KP
+	#define De_DCE_KI	60//80		//默认KI
+	#define De_DCE_KV	1000//300		//默认KIV
+	#define De_DCE_KD	1000//250		//默认KD
+	*/
+	#endif
+	bool		valid_kp, valid_ki, valid_kv, valid_kd;	//参数有效标志
 	int32_t	kp, ki, kv, kd;		//参数
 	//控制参数(基本部分)
 	int32_t		p_error, v_error;		//误差记录
@@ -98,7 +146,6 @@ typedef struct{
 	int32_t		i_mut, i_dec;				//小积分处理
 	int32_t		out;								//输出
 }Control_DCE_Typedef;
-#pragma pack ()
 extern Control_DCE_Typedef dce;
 
 //参数配置
@@ -151,11 +198,14 @@ typedef enum{
 	Motor_Mode_Debug_Speed			= 0x01,	//调试速度				NULL									多功能调试信号源						测试版本完整代码
 	//停止
 	Control_Mode_Stop						= 0x10,	//停止						NULL									NULL												NULL
+	Control_Mode_SetId						= 0x1F,	//设置ID						NULL									NULL												NULL
+	
 	//DIG(CAN/RS485)
 	Motor_Mode_Digital_Location	= 0x20,	//DIG位置					目标位置							位置跟踪器(速度,双加速度)		源码开放(20191101)
 	Motor_Mode_Digital_Speed		= 0x21,	//DIG速度					目标速度							速度跟踪器(双加速度)				源码开放(20191101)
 	Motor_Mode_Digital_Current	= 0x22,	//DIG电流					目标电流							电流跟踪器(双电梯度)				源码开放(20191101)
 	Motor_Mode_Digital_Track		= 0x23,	//DIG轨迹					多指令								运动重构器(运动自寻)				源码开放(20191101)
+	Motor_Mode_SelfTrack= 0x24,
 	//MoreIO(PWM/PUL)
 	Motor_Mode_PWM_Location			= 0x30,	//PWM位置_舵机		目标位置							位置跟踪器(速度,双加速度)		源码开放(20191101)
 	Motor_Mode_PWM_Speed				= 0x31,	//PWM速度_调速机	目标速度							速度跟踪器(双加速度)				源码开放(20191101)
@@ -170,16 +220,15 @@ typedef enum{
 /**
   * Motor_Control类结构体定义
 **/
-#pragma pack (2)
 typedef struct{
 	//配置(模式)
-	#define			De_Motor_Mode		Motor_Mode_PULSE_Location	//默认配置
-	uint16_t				valid_mode;		//有效标志
+	#define			De_Motor_Mode		Control_Mode_Stop	//默认配置
+	bool				valid_mode;		//有效标志
 	Motor_Mode	mode_order;		//电机模式_新指令的
 	//配置(堵转)
 	#define			De_Motor_Stall	true		//默认堵转保护开关
-	uint16_t				valid_stall_switch;			//堵转保护开关有效标志
-	uint16_t				stall_switch;						//堵转保护开关
+	bool				valid_stall_switch;			//堵转保护开关有效标志
+	bool				stall_switch;						//堵转保护开关
 	//模式
 	Motor_Mode	mode_run;			//电机模式_运行中的
 	//读取
@@ -198,28 +247,27 @@ typedef struct{
 	int32_t		goal_location;	//目标位置(由信号输入)
 	int32_t		goal_speed;			//目标速度(由信号输入)
 	int16_t		goal_current;		//目标电流(由信号输入)
-	uint16_t			goal_disable;		//目标失能(由信号输入)
-	uint16_t			goal_brake;			//目标刹车(由信号输入)
+	bool			goal_disable;		//目标失能(由信号输入)
+	bool			goal_brake;			//目标刹车(由信号输入)
 	//软目标
 	int32_t		soft_location;	//软位置(由 跟踪器/重构器/插补器/硬运算 得到)
 	int32_t		soft_speed;			//软速度(由 跟踪器/重构器/插补器/硬运算 得到)
 	int16_t		soft_current;		//软电流(由 跟踪器/重构器/插补器/硬运算 得到)
-	uint16_t			soft_disable;		//软失能
-	uint16_t			soft_brake;			//软刹车
-	uint16_t			soft_new_curve;	//新软目标曲线
+	bool			soft_disable;		//软失能
+	bool			soft_brake;			//软刹车
+	bool			soft_new_curve;	//新软目标曲线
 	//输出
 	int32_t		foc_location;		//FOC矢量位置
 	int32_t		foc_current;		//FOC矢量大小
 	//堵转识别
 	uint32_t	stall_time_us;	//堵转计时器
-	uint16_t			stall_flag;			//堵转
+	bool			stall_flag;			//堵转标志
 	//过载识别
 	uint32_t	overload_time_us;	//过载计时器
-	uint16_t			overload_flag;		//过载标志
+	bool			overload_flag;		//过载标志
 	//状态
 	Motor_State		state;			//统一的电机状态
 }Motor_Control_Typedef;
-#pragma pack ()
 extern Motor_Control_Typedef motor_control;
 
 //参数配置
@@ -240,6 +288,9 @@ void Motor_Control_Callback(void);									//控制器任务回调
 void Motor_Control_Clear_Integral(void);						//清除积分
 void Motor_Control_Clear_Stall(void);								//清除堵转保护
 int32_t Motor_Control_AdvanceCompen(int32_t _speed);//超前角补偿
+
+
+
 
 #ifdef __cplusplus
 }

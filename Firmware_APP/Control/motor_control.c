@@ -46,7 +46,7 @@
 #include "mt6816.h"
 #include "hw_elec.h"
 #include "signal_port.h"
-
+#include "rein_math.h"
 //Control
 #include "control_config.h"
 #include "Location_Tracker.h"
@@ -54,7 +54,7 @@
 #include "Current_Tracker.h"
 #include "Move_Reconstruct.h"
 #include "Location_Interp.h"
-
+#include "bsp_delay.h"
 /****************************************  电流输出(电流控制)  ****************************************/
 /****************************************  电流输出(电流控制)  ****************************************/
 /**
@@ -308,6 +308,224 @@ void Control_DCE_To_Electric(int32_t _location, int32_t _speed)
 	//CurrentControl_Out_FeedTrack(motor_control.foc_location, motor_control.foc_current, false, true);
 }
 
+
+/****************************************  梯形加速位置插补器(只能输入终点)  ****************************************/
+/****************************************  梯形加速位置插补器(只能输入终点)   ****************************************/
+/**
+ * 控制流程
+ * 1.计算当前位置与目标位置差poserror
+ * 2.当前应该加速还是减速：当前速度speedest > 目标速度trackSpeed必定减速，反之：
+ * 预测如果以当前位置减速，在目标位置之后到达则减速。反之加速
+*/
+extern uint8_t userMode;
+int16_t speedSpan = 32;
+
+int16_t trackSpeedPss;//过程速度,必须为正
+int16_t trackAcc;//加速度,必须为正
+int16_t trackAccEnd;
+int32_t trackPosEnd;//终点位置
+int16_t trackSpeedEnd=0;//终点速度
+
+int32_t vctPos;//位置向量,由起点指向终点
+int32_t lenPos;//位置向量的模
+int32_t lenPos2;//
+
+int32_t tx;//目标速度减速到0移动的距离
+int32_t txa;
+int32_t sx;//起始速度减速到0移动的距离
+int32_t softPos;//中间变量，位置
+int16_t softSpeed=0;//
+int16_t softAcc;//
+int16_t softAccEnd;//
+
+uint8_t sphere=0;//trackTriger 与 Motor_Digital_Track互斥信号量
+uint8_t step=0;
+uint8_t cvflag=0;
+void trackTriger()
+{
+	while(sphere)//等待Motor_Digital_Track函数释放信号量
+	{
+		delay_us(10);
+	}
+	step=0;
+	/*******************初始化参数******************************************************/
+	trackSpeedPss = i32_abs(trackSpeedPss);//强制转为正数
+	trackAcc = i32_abs(trackAcc);//强制转为正数
+	trackAccEnd = i32_abs(trackAccEnd);//强制转为正数
+
+	if(trackPosEnd > posMax)trackPosEnd=posMax;//限制输入
+	if(trackPosEnd < posMin)trackPosEnd=posMin;
+	if(trackSpeedPss > speedMax)trackPosEnd=speedMax;
+	if(trackAcc > accMax)trackAcc=accMax;
+
+
+
+
+//	softSpeed = motor_control.est_speed;//读取传感器的值
+	softPos = motor_control.est_location;
+
+	vctPos = trackPosEnd - softPos;//位置向量,由起点指向终点
+	lenPos = i32_abs(vctPos);//位置向量的模
+	
+	tx = trackSpeedPss*trackSpeedPss / (2*trackAccEnd);//目标速度减速到0移动的距离
+	txa = trackSpeedPss*trackSpeedPss / (2*trackAcc);//0加速目标速度移动的距离
+	sx = softSpeed*softSpeed / (2*trackAccEnd);//起始速度减速到0移动的距离
+	
+	/**************运算**********************************************************/
+	if(i32_polAdj(vctPos,softSpeed)||(softSpeed==0))//pos与速度同方向，即速度指向终点
+	{
+		lenPos2 = i32_abs(sx-lenPos);
+		if(sx > lenPos)//减速到0超过终点
+		{
+			if(lenPos2 > tx + txa)//减速到0再加速超过期望速度
+			{
+				if(vctPos<0)trackSpeedPss = -trackSpeedPss;//vt与vpos反向
+				cvflag = 1;//有匀速过程
+			}
+			else if(lenPos2 == tx + txa)//刚好达到
+			{
+				if(vctPos<0)trackSpeedPss = -trackSpeedPss;//vt与vpos反向
+				cvflag = 0;//无匀速过程
+			}
+			else//减速到0再加速无法达到期望速度
+			{
+				trackSpeedPss = sqrt(2*lenPos2*trackAcc*trackAccEnd/(trackAcc+trackAccEnd));//重设期望速度
+				if(vctPos > 0)trackSpeedPss = -trackSpeedPss;////vt与vpos反向
+				cvflag = 0;//无匀速过程
+			}
+		}
+		else if(sx < lenPos)//不会超过终点
+		{
+			if(lenPos > tx + txa)//减速到0再加速超过期望速度
+			{
+				//vt与vpos同向
+				//vt不变
+				cvflag = 1;//有匀速过程
+			}
+			else if(lenPos == tx + txa)//刚好达到
+			{
+				//vt与vpos同向
+				//vt不变
+				cvflag = 0;//无匀速过程
+			}
+			else//减速到0再加速无法达到期望速度
+			{
+				trackSpeedPss = sqrt(2*lenPos*trackAcc*trackAccEnd/(trackAcc+trackAccEnd));//重设期望速度
+				//vt与vpos同向
+				cvflag = 0;//无匀速过程
+			}
+		}
+		else//刚好终点
+		{
+			//vt与vpos同向
+			cvflag = 0;//无匀速过程
+		}
+	}
+	else//pos与速度反向，即速度远离终点
+	{
+		lenPos2 = sx+lenPos;
+		if(lenPos2 > tx + txa)//减速到0再加速超过期望速度
+		{
+			//vt与vpos同向
+			//vt不变
+			cvflag = 1;//有匀速过程
+		}
+		else if(lenPos2 == tx + txa)//刚好达到
+		{
+			//vt与vpos同向
+			//vt不变
+			cvflag = 0;//无匀速过程
+		}
+		else//减速到0再加速无法达到期望速度
+		{
+			trackSpeedPss = sqrt(2*lenPos2*trackAcc*trackAccEnd/(trackAcc+trackAccEnd));//重设期望速度
+			//vt与vpos同向
+			cvflag = 0;//无匀速过程
+		}
+	}
+	/**************结束**********************************************************/
+	if(trackSpeedPss>0)softAcc = trackAcc;//加速度方向与期望速度方向相同
+	else softAcc = -trackAcc;
+	if(trackSpeedPss>0)softAccEnd = trackAccEnd;//加速度方向与期望速度方向相同
+	else softAccEnd = -trackAccEnd;
+}
+
+
+
+
+
+
+void Motor_Digital_Track()
+{
+	static uint8_t cnt;
+	if(cnt>25)
+	{
+		cnt=0;
+		sphere = 1;//占用信号量
+		static uint16_t timeOutN=0;
+		switch (step)
+		{
+		case 0:/**速度向vt靠近*/
+			if(i32_abs(softSpeed - trackSpeedPss) <= trackAcc) //回环判定
+			{
+				softSpeed = trackSpeedPss;
+				if(cvflag==0)step=2;//无匀速过程
+				else step = 1;//有匀速过程
+			}				
+			else if(softSpeed > trackSpeedPss)
+				softSpeed -= trackAcc; 
+			else if(softSpeed < trackSpeedPss)
+				softSpeed += trackAcc; 
+			break;
+		case 1://匀速
+			if(i32_abs(softPos - trackPosEnd) <= tx)
+			{
+				step=2;
+			}	
+			break;
+		case 2:/**速度向acce靠近*/
+			if(i32_abs(softSpeed - softAcc) <= trackAccEnd)//回环判定,速度最小为2acc
+			{
+				softSpeed = softAcc,step=3;
+				timeOutN=0;
+			}
+			else if(softSpeed > softAcc)
+				softSpeed -= trackAccEnd; 
+			else if(softSpeed < softAcc)
+				softSpeed += trackAccEnd; 			
+			break;
+		}
+		/**位置向终点靠近*/
+		int32_t absSpeed=i32_abs(softSpeed);
+		if(step==3)
+		{
+			timeOutN++;
+			if(timeOutN>3)
+			softPos = trackPosEnd;
+			step=4;
+		}
+		if((step!=4)&&(i32_abs(trackPosEnd - softPos) <= absSpeed))//回环判定,
+		{
+			softPos = trackPosEnd;
+			softSpeed = 0;
+			step=4;
+		}		
+		else if(softPos < trackPosEnd)
+			softPos += absSpeed;
+		else if(softPos > trackPosEnd)
+			softPos -= absSpeed;
+
+		/**输出到目标位置*/
+		if(softPos > posMax)softPos=posMax;//限制输出
+		if(softPos < posMin)softPos=posMin;//限制输出
+		if(softSpeed > speedMax)softSpeed=speedMax;
+		if(softSpeed < speedMin)softSpeed=speedMin;		
+		motor_control.goal_location = softPos;
+		motor_control.goal_speed = softSpeed*speedSpan;
+
+		sphere = 0;//释放信号量
+	}cnt++;
+}
 /****************************************  Motor_Contro_Debug  ****************************************/
 /****************************************  Motor_Contro_Debug  ****************************************/
 Motor_Control_Debug_Typedef		mc_debug;	//控制调试
@@ -576,7 +794,8 @@ void Motor_Control_Callback(void)
 			//停止
 			case Control_Mode_Stop:						REIN_HW_Elec_SetSleep();																															break;
 			//DIG(CAN/RS485)
-			case Motor_Mode_Digital_Location:	Control_DCE_To_Electric(motor_control.soft_location, motor_control.soft_speed);				break;
+			case Motor_Mode_Digital_Location:	Control_DCE_To_Electric(motor_control.soft_location, motor_control.soft_speed);	
+						if(userMode==1)Motor_Digital_Track(); break;
 			case Motor_Mode_Digital_Speed:		Control_PID_To_Electric(motor_control.soft_speed);																		break;
 			case Motor_Mode_Digital_Current:	Control_Cur_To_Electric(motor_control.soft_current);																	break;
 			case Motor_Mode_Digital_Track:		Control_DCE_To_Electric(motor_control.soft_location, motor_control.soft_speed);				break;
@@ -745,22 +964,25 @@ void Motor_Control_Callback(void)
 	/************************************ 状态识别 ************************************/
 	int32_t abs_out_electric = abs(motor_control.foc_current);
 	//堵转检测
-	if( ((motor_control.mode_run == Motor_Mode_Digital_Current) || (motor_control.mode_run == Motor_Mode_PWM_Current))	//电流模式
-	 && (abs_out_electric != 0)																																													//有输出电流
-	 && (abs(motor_control.est_speed) < (Move_Pulse_NUM/5))																															//低于1/5转/s
-	){
-		if(motor_control.stall_time_us >= (1000 * 1000))	motor_control.stall_flag = true;
-		else																							motor_control.stall_time_us += CONTROL_PERIOD_US;
-	}
-	else if( (abs_out_electric == Current_Rated_Current)						//额定电流
-				&& (abs(motor_control.est_speed) < (Move_Pulse_NUM/5))		//低于1/5转/s
-	){
-		if(motor_control.stall_time_us >= (1000 * 1000))	motor_control.stall_flag = true;
-		else																							motor_control.stall_time_us += CONTROL_PERIOD_US;
-	}
-	else{
-		motor_control.stall_time_us = 0;
-		//堵转标志不能自清除，需要外部指令才能清除
+	if(motor_control.mode_run != Motor_Mode_Digital_Current)
+	{
+		if( ((motor_control.mode_run == Motor_Mode_Digital_Current) || (motor_control.mode_run == Motor_Mode_PWM_Current))	//电流模式
+		&& (abs_out_electric != 0)																																													//有输出电流
+		&& (abs(motor_control.est_speed) < (Move_Pulse_NUM/5))																															//低于1/5转/s
+		){
+			if(motor_control.stall_time_us >= (1000 * 1000))	motor_control.stall_flag = true;
+			else																							motor_control.stall_time_us += CONTROL_PERIOD_US;
+		}
+		else if( (abs_out_electric == Current_Rated_Current)						//额定电流
+					&& (abs(motor_control.est_speed) < (Move_Pulse_NUM/5))		//低于1/5转/s
+		){
+			if(motor_control.stall_time_us >= (1000 * 1000))	motor_control.stall_flag = true;
+			else																							motor_control.stall_time_us += CONTROL_PERIOD_US;
+		}
+		else{
+			motor_control.stall_time_us = 0;
+			//堵转标志不能自清除，需要外部指令才能清除
+		}
 	}
 
 	//过载检测

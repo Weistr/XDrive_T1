@@ -48,10 +48,6 @@ extern "C" {
 
 #include "kernel_port.h"
 
-extern uint16_t reboot;
-extern uint16_t save;
-
-
 //loop.c
 void loop_second_base_1ms(void);	//副时钟1ms时钟
 void loop(void);

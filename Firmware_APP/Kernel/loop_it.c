@@ -84,7 +84,6 @@ void LoopIT_SysTick_20KHz(void)
 	HAL_SYSTICK_Config(SystemCoreClock / 20000);	//更新为20K中断
 }
 
-
 /**
   * @brief This function handles System tick timer.
 	* 启动初期由HAL库自动初始化的SysTick为1KHz
@@ -135,7 +134,7 @@ void LoopIT_Priority_Overlay(void)
 	//中断号																				优先级			中断源												用途
   HAL_NVIC_SetPriority(SIGNAL_COUNT_DIR_Get_IRQn,	0,	0);		//外部中断(SIGNAL_COUNT_DIR)		获取SIGNAL_COUNT计数器方向
 	HAL_NVIC_SetPriority(SIGNAL_PWM_Get_IRQn,				0,	0);		//定时器捕获(SIGNAL_PWM_PWM)		获取SIGNAL_PWM两个边沿计数值
-	HAL_NVIC_SetPriority(SysTick_IRQn,							2,	0);		//系统定时器										核心时钟
+	HAL_NVIC_SetPriority(SysTick_IRQn,							1,	0);		//系统定时器										核心时钟
 
 	HAL_NVIC_SetPriority(Modbus_UART_TX_DMA_IRQn,		3,	0);		//Modbus_TX_DMA中断							响应发送完成			
 	HAL_NVIC_SetPriority(Modbus_UART_RX_DMA_IRQn,		3,	0);		//Modbus_RX_DMA中断							响应接收完成

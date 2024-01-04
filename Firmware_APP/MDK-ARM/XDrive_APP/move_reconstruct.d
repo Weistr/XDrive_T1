@@ -1,11 +1,11 @@
 .\xdrive_app\move_reconstruct.o: ..\Control\Move_Reconstruct.c
 .\xdrive_app\move_reconstruct.o: ..\Control\Move_Reconstruct.h
 .\xdrive_app\move_reconstruct.o: ..\Base_Drivers\kernel_port.h
-.\xdrive_app\move_reconstruct.o: D:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-.\xdrive_app\move_reconstruct.o: D:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
-.\xdrive_app\move_reconstruct.o: D:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-.\xdrive_app\move_reconstruct.o: D:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\xdrive_app\move_reconstruct.o: D:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\xdrive_app\move_reconstruct.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\xdrive_app\move_reconstruct.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\xdrive_app\move_reconstruct.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\xdrive_app\move_reconstruct.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\xdrive_app\move_reconstruct.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\xdrive_app\move_reconstruct.o: ../Core/Inc/main.h
 .\xdrive_app\move_reconstruct.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 .\xdrive_app\move_reconstruct.o: ../Core/Inc/stm32f1xx_hal_conf.h
@@ -19,7 +19,7 @@
 .\xdrive_app\move_reconstruct.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 .\xdrive_app\move_reconstruct.o: ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h
 .\xdrive_app\move_reconstruct.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
-.\xdrive_app\move_reconstruct.o: D:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\xdrive_app\move_reconstruct.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 .\xdrive_app\move_reconstruct.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h
 .\xdrive_app\move_reconstruct.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h
 .\xdrive_app\move_reconstruct.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio_ex.h

@@ -42,7 +42,21 @@
 
 //Oneself
 #include "rein_math.h"
+int32_t i32_abs(int32_t in)
+{
+	if (in > 0)
+	{
+		return in;
+	}
+	else return -in;
+	
+}
 
+int8_t i32_polAdj(int32_t A,int32_t B)//AB同号输出1，异号输出0
+{
+	if((A+B) == (i32_abs(A)+ i32_abs(B))) return 1;
+	else return 0;
+}
 
 
 

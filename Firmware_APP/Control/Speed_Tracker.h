@@ -55,15 +55,14 @@ extern "C" {
 /**
   * Speed_Tracker类结构体定义
 **/
-#pragma pack (2)
 typedef struct{
 	//配置(加速加速度)
 	#define	DE_UP_ACC			(Move_Rated_UpAcc / 10)
-	uint16_t		valid_up_acc;
+	bool		valid_up_acc;
 	int32_t	up_acc;
 	//配置(减速加速度)
 	#define	DE_DOWN_ACC		(Move_Rated_DownAcc / 10)
-	uint16_t		valid_down_acc;
+	bool		valid_down_acc;
 	int32_t	down_acc;
 	//计算过程数据
 	int32_t		course_mut;	//过程加速度积分(放大CONTROL_FREQ_HZ倍)
@@ -71,7 +70,6 @@ typedef struct{
 	//输出跟踪量
 	int32_t		go_speed;		//立即速度
 }Speed_Tracker_Typedef;
-#pragma pack ()
 extern Speed_Tracker_Typedef	speed_tck;
 
 void Speed_Tracker_Set_UpAcc(int32_t value);		//速度跟踪器设置加速加速度

@@ -61,8 +61,7 @@ extern "C" {
 #include "tim.h"
 
 //固件版本
-//#define XDrive_Firmware		"F1.1.5 S"
-extern uint32_t version;
+#define XDrive_Firmware		"F1.1.5 S"
 
 //硬件列表
 #define XDrive_REIN_Basic_H1_0		(0x00000100)	//(REIN - Basic - 01 - 00)

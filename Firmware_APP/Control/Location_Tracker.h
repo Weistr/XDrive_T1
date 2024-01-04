@@ -55,19 +55,18 @@ extern "C" {
 /**
   * Location_Tracker类结构体定义
 **/
-#pragma pack (2)
 typedef struct{
 	//配置(速度)
 	#define	DE_MAX_SPEED	(Move_Rated_Speed)
-	uint16_t		valid_max_speed;
+	bool		valid_max_speed;
 	int32_t	max_speed;
 	//配置(加速加速度)
 	#define	DE_UP_ACC			(Move_Rated_UpAcc / 10)
-	uint16_t		valid_up_acc;
+	bool		valid_up_acc;
 	int32_t	up_acc;
 	//配置(减速加速度)
 	#define	DE_Down_ACC		(Move_Rated_DownAcc / 10)
-	uint16_t		valid_down_acc;
+	bool		valid_down_acc;
 	int32_t	down_acc;
 	float		down_acc_quick;	//快速运算数		1.0f / (2.0f * down_acc)
 	//静态配置的跟踪参数
@@ -81,8 +80,6 @@ typedef struct{
 	int32_t		go_location;	//立即位置
 	int32_t		go_speed;			//立即速度
 }Location_Tracker_Typedef;
-#pragma pack ()
-
 extern Location_Tracker_Typedef	location_tck;
 
 void Location_Tracker_Set_MaxSpeed(int32_t value);//位置跟踪器设置最大速度

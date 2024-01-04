@@ -16,7 +16,7 @@
         <TargetCommonOption>
           <Device>STM32F103CB</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F1xx_DFP.2.3.0</PackID>
+          <PackID>Keil.STM32F1xx_DFP.2.4.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x20004FFF) IROM(0x8000000-0x801FFFF) CLOCK(8000000) CPUTYPE("Cortex-M3")</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -136,8 +136,8 @@
             <Capability>1</Capability>
             <DriverSelection>4101</DriverSelection>
           </Flash1>
-          <bUseTDR>0</bUseTDR>
-          <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
+          <bUseTDR>1</bUseTDR>
+          <Flash2>BIN\UL2CM3.DLL</Flash2>
           <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
@@ -318,7 +318,7 @@
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
             <Strict>0</Strict>
-            <EnumInt>1</EnumInt>
+            <EnumInt>0</EnumInt>
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\Base_Drivers;..\Base_Math;..\Config;..\Control;..\Data_Link;..\Debug;..\Kernel;..\Demo;..\FreeModbus\modbus\ascii;..\FreeModbus\modbus\include;..\FreeModbus\modbus\rtu;..\FreeModbus\port</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\Base_Drivers;..\Base_Math;..\Config;..\Control;..\Data_Link;..\Debug;..\Kernel;..\Demo;..\userApp\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -701,57 +701,22 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>FreeModbus/modbus/functions</GroupName>
+          <GroupName>UserApp</GroupName>
           <Files>
             <File>
-              <FileName>mbfunccoils.c</FileName>
+              <FileName>xdCom.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FreeModbus\modbus\functions\mbfunccoils.c</FilePath>
+              <FilePath>..\userApp\xdCom.c</FilePath>
             </File>
             <File>
-              <FileName>mbfuncdisc.c</FileName>
+              <FileName>crc16modbus.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FreeModbus\modbus\functions\mbfuncdisc.c</FilePath>
+              <FilePath>..\userApp\crc16modbus.c</FilePath>
             </File>
             <File>
-              <FileName>mbfuncholding.c</FileName>
+              <FileName>bsp_delay.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FreeModbus\modbus\functions\mbfuncholding.c</FilePath>
-            </File>
-            <File>
-              <FileName>mbfuncinput.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\FreeModbus\modbus\functions\mbfuncinput.c</FilePath>
-            </File>
-            <File>
-              <FileName>mbfuncother.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\FreeModbus\modbus\functions\mbfuncother.c</FilePath>
-            </File>
-            <File>
-              <FileName>mbutils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\FreeModbus\modbus\functions\mbutils.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>FreeModbus/port</GroupName>
-          <Files>
-            <File>
-              <FileName>user_mb_app.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\FreeModbus\port\user_mb_app.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>FreeModbus/modbus/rtu</GroupName>
-          <Files>
-            <File>
-              <FileName>mbcrc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\FreeModbus\modbus\rtu\mbcrc.c</FilePath>
+              <FilePath>..\userApp\bsp_delay.c</FilePath>
             </File>
           </Files>
         </Group>

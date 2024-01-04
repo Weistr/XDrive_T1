@@ -57,7 +57,7 @@ extern "C" {
 #define MUART_MODE	 						MUART_TX_MODE_POPUP
 
 //收发缓冲区
-#define UART_BuffSize	256		//收发缓冲区容量
+#define UART_BuffSize	16		//收发缓冲区容量
 /***************************************** Config_End ******************************************/
 
 /** 
@@ -105,7 +105,7 @@ extern UartMixed_TypeDef	muart6;
 #endif
 
 //接口函数
-void Uart_Mixed_Init(UartMixed_TypeDef *muart, void(*xerc)(char*, uint16_t), void(*xetc)(void));	//混合串口初始化
+void Uart_Mixed_Init(UartMixed_TypeDef *muart, void(*xerc)(uint8_t*, uint16_t), void(*xetc)(void));	//混合串口初始化
 void Uart_Mixed_Stop(UartMixed_TypeDef *muart);														//混合串口停止
 void Uart_Mixed_Begin(UartMixed_TypeDef *muart);													//混合串口开始
 //混合库功能函数

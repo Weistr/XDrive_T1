@@ -53,14 +53,9 @@
 ".\xdrive_app\xdrive_ui.o"
 ".\xdrive_app\loop.o"
 ".\xdrive_app\loop_it.o"
-".\xdrive_app\mbfunccoils.o"
-".\xdrive_app\mbfuncdisc.o"
-".\xdrive_app\mbfuncholding.o"
-".\xdrive_app\mbfuncinput.o"
-".\xdrive_app\mbfuncother.o"
-".\xdrive_app\mbutils.o"
-".\xdrive_app\user_mb_app.o"
-".\xdrive_app\mbcrc.o"
+".\xdrive_app\xdcom.o"
+".\xdrive_app\crc16modbus.o"
+".\xdrive_app\bsp_delay.o"
 --library_type=microlib --strict --scatter "..\Config\X _Drive.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

@@ -51,6 +51,7 @@
 #include "kernel_port.h"
 #include "mt6816.h"
 #include "hw_elec.h"
+#include "uart_mixed.h"
 
 //Control
 #include "signal_port.h"
@@ -62,8 +63,8 @@
 #include "ssd1306.h"
 #include "xdrive_ui.h"
 
-//Save
-#include "stockpile_f103cb.h"
+//user
+#include "xdCom.h"
 
 /**********************************************************************/
 /*********************    Subclock processing    **********************/
@@ -76,84 +77,12 @@ static uint32_t time_second_20ms = 0;
 static uint32_t time_second_50ms = 0;
 static uint32_t time_second_100ms = 0;
 
-
-uint16_t reboot;
-uint16_t save;
-uint32_t version = 0x01010602;
-
-void load_info(void)
-{
-	if(*((uint32_t *)stockpile_data.begin_add) == version)
-	{
-		// pid
-		pid.valid_kp = true;
-		pid.kp = *((int32_t *)(stockpile_data.begin_add+4));
-		pid.valid_ki = true;
-		pid.ki = *((int32_t *)(stockpile_data.begin_add+8));
-		pid.valid_kd = true;
-		pid.kd = *((int32_t *)(stockpile_data.begin_add+12));
-		
-		// dce
-		dce.valid_kp = true;
-		dce.kp = *((int32_t *)(stockpile_data.begin_add+16));
-		dce.valid_ki = true;
-		dce.ki = *((int32_t *)(stockpile_data.begin_add+20));
-		dce.valid_kv = true;
-		dce.kv = *((int32_t *)(stockpile_data.begin_add+24));
-		dce.valid_kd = true;
-		dce.kd = *((int32_t *)(stockpile_data.begin_add+28));
-		
-		// Uart
-		dyn_uart1.valid_uart_baudrate = true;
-		dyn_uart1.baud_rate_order = *((int32_t *)(stockpile_data.begin_add+32));
-		dyn_uart1.valid_uart_mode = true;
-		dyn_uart1.uart_order = (Uart_Mode)(*((int16_t *)(stockpile_data.begin_add+36)));
-		
-		// Modbus
-		signal_modbus.valid_modbus_id = true;
-		signal_modbus.id_order = *((int16_t *)(stockpile_data.begin_add+38));
-	}
-}
-
-void save_info(void)
-{
-	Stockpile_Flash_Data_Empty(&stockpile_data);
-	Stockpile_Flash_Data_Begin(&stockpile_data);
-	
-	Stockpile_Flash_Data_Set_Write_Add(&stockpile_data, stockpile_data.begin_add);
-	
-	// head
-	Stockpile_Flash_Data_Write_Data32(&stockpile_data, (uint32_t *)&version, 1);
-	
-	// PID
-	Stockpile_Flash_Data_Write_Data32(&stockpile_data, (uint32_t *)&pid.kp, 1);
-	Stockpile_Flash_Data_Write_Data32(&stockpile_data, (uint32_t *)&pid.ki, 1);
-	Stockpile_Flash_Data_Write_Data32(&stockpile_data, (uint32_t *)&pid.kd, 1);
-	
-	// DCE
-	Stockpile_Flash_Data_Write_Data32(&stockpile_data, (uint32_t *)&dce.kp, 1);
-	Stockpile_Flash_Data_Write_Data32(&stockpile_data, (uint32_t *)&dce.ki, 1);
-	Stockpile_Flash_Data_Write_Data32(&stockpile_data, (uint32_t *)&dce.kv, 1);
-	Stockpile_Flash_Data_Write_Data32(&stockpile_data, (uint32_t *)&dce.kd, 1);
-	
-	// Uart
-	Stockpile_Flash_Data_Write_Data32(&stockpile_data, (uint32_t *)&dyn_uart1.baud_rate_order, 1);
-	Stockpile_Flash_Data_Write_Data16(&stockpile_data, (uint16_t *)&dyn_uart1.uart_order, 1);
-	
-	// Modbus
-	Stockpile_Flash_Data_Write_Data16(&stockpile_data, (uint16_t *)&signal_modbus.id_order, 1);
-	
-	Stockpile_Flash_Data_End(&stockpile_data);
-	
-	save = 0;
-}
-
-
 /**
 * @brief 副时钟10ms执行
 */
 void time_second_10ms_serve(void)
 {
+
 }
 
 /**
@@ -178,8 +107,7 @@ void time_second_50ms_serve(void)
 */
 void time_second_100ms_serve(void)
 {
-	if(reboot) HAL_NVIC_SystemReset();
-	if(save) save_info();
+
 }
 	
 /**
@@ -215,9 +143,6 @@ void loop_second_base_1ms(void)
 */
 void loop(void)
 {
-	// 加载配置
-	load_info();
-	
 	//调试工具(Debug)
 	Button_Init();				//按键初始化
 	SSD1306_Init();				//OLED初始化
@@ -246,6 +171,7 @@ void loop(void)
 	REIN_GPIO_Modbus_Init();	//RS485_DIR
 	REIN_UART_Modbus_Init();	//串口初始化
 	Signal_Modbus_Init();			//Modbu接口初始化
+	Uart_Mixed_Init(&muart1,xdUartRxIsr,xdUartTxIsr);
 	
 	//调整中断配置
 	LoopIT_Priority_Overlay();	//重写-中断优先级覆盖

@@ -48,7 +48,9 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-
+#include <math.h>
+int32_t i32_abs(int32_t in);
+int8_t i32_polAdj(int32_t A,int32_t B);//AB同号输出1，异号输出0
 
 #ifdef __cplusplus
 }
